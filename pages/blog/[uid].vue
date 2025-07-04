@@ -1,7 +1,7 @@
 <template>
-  <div v-if="post?.value && post.value.data" class="container mx-auto py-8">
-    <img :src="post.value.data.cover_image.url" alt="" class="w-full h-64 object-cover rounded-lg mb-6" />
-    <h1 class="text-3xl font-bold mb-4">{{ post.value.data.title[0]?.text }}</h1>
+  <div v-if="post && post.data" class="container mx-auto py-8">
+    <img :src="post.data.cover_image?.url || ''" alt="" class="w-full h-64 object-cover rounded-lg mb-6" />
+    <h1 class="text-3xl font-bold mb-4">{{ Array.isArray(post.data.title) && post.data.title[0] && post.data.title[0].text ? post.data.title[0].text : '' }}</h1>
     <p class="text-gray-500 mb-6">{{ formatDate() }}</p>
     <div class="prose max-w-none" v-html="contentHtml"></div>
   </div>
@@ -17,15 +17,22 @@ import { computed } from 'vue'
 
 const route = useRoute()
 const { client } = usePrismic()
-const { data: post } = await useAsyncData('post', () =>
-  client.getByUID('post', route.params.uid as string).catch(() => null)
-) as { data: any }
+const { data: posts } = await useAsyncData('posts', () => client.getAllByType('post', { lang: '*' }))
+
+const post = computed(() => {
+  return (posts.value || []).find(p => p.uid === route.params.uid)
+})
 
 const contentHtml = computed(() =>
-  post.value && post.value.data && post.value.data.content ? asHTML(post.value.data.content) : ''
+  post.value && post.value.data && Array.isArray(post.value.data.content)
+    ? asHTML(post.value.data.content)
+    : post.value?.data?.content || ''
 )
 
 function formatDate() {
   return new Date(post.value?.first_publication_date || '').toLocaleDateString('zh-TW')
 }
+
+console.log('route.params.uid:', route.params.uid)
+console.log('post:', post.value)
 </script> 

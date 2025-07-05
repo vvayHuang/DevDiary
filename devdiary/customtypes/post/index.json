@@ -36,20 +36,11 @@
           "placeholder": ""
         }
       },
-      "created_at": {
+      "create_date": {
         "type": "Date",
         "config": {
-          "label": "created_at",
+          "label": "create_date",
           "placeholder": ""
-        }
-      },
-      "category": {
-        "type": "Link",
-        "config": {
-          "label": "關聯到 category",
-          "select": "document",
-          "repeat": false,
-          "customtypes": []
         }
       }
     }

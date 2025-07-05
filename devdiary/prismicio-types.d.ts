@@ -69,33 +69,46 @@ type ContentRelationshipFieldWithData<
   >;
 }[Exclude<TCustomType[number], string>["id"]];
 
+type PageDocumentDataSlicesSlice = RichTextSlice;
+
 /**
- * Content for category documents
+ * Content for Page documents
  */
-interface FieldDocumentData {
+interface PageDocumentData {
   /**
-   * 名稱 field in *category*
+   * Title field in *Page*
    *
-   * - **Field Type**: Text
+   * - **Field Type**: Rich Text
    * - **Placeholder**: *None*
-   * - **API ID Path**: field.name
+   * - **API ID Path**: page.title
    * - **Tab**: Main
-   * - **Documentation**: https://prismic.io/docs/fields/text
+   * - **Documentation**: https://prismic.io/docs/fields/rich-text
    */
-  name: prismic.KeyTextField;
+  title: prismic.RichTextField;
+
+  /**
+   * Slice Zone field in *Page*
+   *
+   * - **Field Type**: Slice Zone
+   * - **Placeholder**: *None*
+   * - **API ID Path**: page.slices[]
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/slices
+   */
+  slices: prismic.SliceZone<PageDocumentDataSlicesSlice>;
 }
 
 /**
- * category document from Prismic
+ * Page document from Prismic
  *
- * - **API ID**: `field`
+ * - **API ID**: `page`
  * - **Repeatable**: `true`
  * - **Documentation**: https://prismic.io/docs/content-modeling
  *
  * @typeParam Lang - Language API ID of the document.
  */
-export type FieldDocument<Lang extends string = string> =
-  prismic.PrismicDocumentWithUID<Simplify<FieldDocumentData>, "field", Lang>;
+export type PageDocument<Lang extends string = string> =
+  prismic.PrismicDocumentWithUID<Simplify<PageDocumentData>, "page", Lang>;
 
 /**
  * Content for post documents
@@ -135,26 +148,15 @@ interface PostDocumentData {
   content: prismic.KeyTextField;
 
   /**
-   * created_at field in *post*
+   * create_date field in *post*
    *
    * - **Field Type**: Date
    * - **Placeholder**: *None*
-   * - **API ID Path**: post.created_at
+   * - **API ID Path**: post.create_date
    * - **Tab**: Main
    * - **Documentation**: https://prismic.io/docs/fields/date
    */
-  created_at: prismic.DateField;
-
-  /**
-   * 關聯到 category field in *post*
-   *
-   * - **Field Type**: Content Relationship
-   * - **Placeholder**: *None*
-   * - **API ID Path**: post.category
-   * - **Tab**: Main
-   * - **Documentation**: https://prismic.io/docs/fields/content-relationship
-   */
-  category: prismic.ContentRelationshipField;
+  create_date: prismic.DateField;
 }
 
 /**
@@ -169,7 +171,52 @@ interface PostDocumentData {
 export type PostDocument<Lang extends string = string> =
   prismic.PrismicDocumentWithUID<Simplify<PostDocumentData>, "post", Lang>;
 
-export type AllDocumentTypes = FieldDocument | PostDocument;
+export type AllDocumentTypes = PageDocument | PostDocument;
+
+/**
+ * Primary content in *RichText → Default → Primary*
+ */
+export interface RichTextSliceDefaultPrimary {
+  /**
+   * Content field in *RichText → Default → Primary*
+   *
+   * - **Field Type**: Rich Text
+   * - **Placeholder**: Lorem ipsum...
+   * - **API ID Path**: rich_text.default.primary.content
+   * - **Documentation**: https://prismic.io/docs/fields/rich-text
+   */
+  content: prismic.RichTextField;
+}
+
+/**
+ * Default variation for RichText Slice
+ *
+ * - **API ID**: `default`
+ * - **Description**: RichText
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type RichTextSliceDefault = prismic.SharedSliceVariation<
+  "default",
+  Simplify<RichTextSliceDefaultPrimary>,
+  never
+>;
+
+/**
+ * Slice variation for *RichText*
+ */
+type RichTextSliceVariation = RichTextSliceDefault;
+
+/**
+ * RichText Shared Slice
+ *
+ * - **API ID**: `rich_text`
+ * - **Description**: RichText
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type RichTextSlice = prismic.SharedSlice<
+  "rich_text",
+  RichTextSliceVariation
+>;
 
 declare module "@prismicio/client" {
   interface CreateClient {
@@ -192,11 +239,16 @@ declare module "@prismicio/client" {
 
   namespace Content {
     export type {
-      FieldDocument,
-      FieldDocumentData,
+      PageDocument,
+      PageDocumentData,
+      PageDocumentDataSlicesSlice,
       PostDocument,
       PostDocumentData,
       AllDocumentTypes,
+      RichTextSlice,
+      RichTextSliceDefaultPrimary,
+      RichTextSliceVariation,
+      RichTextSliceDefault,
     };
   }
 }

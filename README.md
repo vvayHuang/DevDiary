@@ -1,4 +1,4 @@
-# Vibe Coding Blog
+# DevDiary
 
 ## 專案簡介
 

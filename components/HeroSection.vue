@@ -1,18 +1,31 @@
 <template>
-  <section class="bg-gradient-to-br from-blue-50 to-white py-16">
-    <div class="container mx-auto flex flex-col md:flex-row items-center px-4 gap-10">
-      <div class="flex-1 text-center md:text-left">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-blue-700 mb-4">用程式打造你的知識影響力</h1>
-        <p class="text-lg md:text-xl text-gray-700 mb-6">分享前端、後端、雲端與現代網頁技術，讓每一位開發者都能成為內容創作者。</p>
-        <NuxtLink to="/blog" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">開始閱讀</NuxtLink>
-      </div>
-      <div class="flex-1 flex justify-center">
-        <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80" alt="Coding Hero" class="rounded-2xl shadow-lg w-full max-w-md object-cover" />
-      </div>
+  <section class="bg-gray-50 w-full  flex items-start pt-20 pb-10">
+    <div class="w-full max-w-2xl px-6 flex flex-col items-start">
+      <h1 class="text-5xl md:text-7xl font-black tracking-tight text-gray-900 mb-6">MAGAZINE</h1>
+      <p class="text-lg md:text-xl text-gray-700 leading-relaxed mb-2">歡迎來到 Vibe Coding Blog，這裡是你探索程式、設計與生活靈感的起點。分享故事、技巧與洞見，陪你一起突破自我、開創新局！</p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 // 無需額外邏輯
-</script> 
+</script>
+
+<style scoped>
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.delay-150 {
+  animation-delay: 0.15s;
+}
+</style> 

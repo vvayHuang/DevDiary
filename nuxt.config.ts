@@ -1,4 +1,4 @@
-import { apiEndpoint, repositoryName } from "./slicemachine.config.json";
+import slicemachineConfig from "./slicemachine.config.json";
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
 
@@ -10,6 +10,11 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
   ],
   prismic: {
-    endpoint: apiEndpoint || repositoryName,
+    endpoint: `https://${slicemachineConfig.repositoryName}.cdn.prismic.io/api/v2`,
   },
+  app: {
+    head: {
+      title: 'DevDiary',
+    }
+  }
 })

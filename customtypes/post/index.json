@@ -49,7 +49,12 @@
           "label": "關聯到 category",
           "select": "document",
           "repeat": false,
-          "customtypes": []
+          "customtypes": [
+            {
+              "id": "field",
+              "fields": ["name"]
+            }
+          ]
         }
       }
     }

@@ -154,7 +154,9 @@ interface PostDocumentData {
    * - **Tab**: Main
    * - **Documentation**: https://prismic.io/docs/fields/content-relationship
    */
-  category: prismic.ContentRelationshipField;
+  category: ContentRelationshipFieldWithData<
+    [{ id: "field"; fields: ["name"] }]
+  >;
 }
 
 /**

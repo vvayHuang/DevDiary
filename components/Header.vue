@@ -4,7 +4,7 @@
     <div class="flex items-center">
       <NuxtLink to="/" aria-label="首頁">
         <div class="oasis-logo-outer">
-          <div class="oasis-logo-inner">Vibe Coding Blog</div>
+          <div class="oasis-logo-inner">DevDiary</div>
         </div>
       </NuxtLink>
     </div>

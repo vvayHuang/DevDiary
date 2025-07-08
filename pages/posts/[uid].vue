@@ -18,19 +18,38 @@
       發佈日期：{{ formatDate() }}
     </div>
 
-    <!-- 內文 -->
-    <div class="prose prose-lg max-w-none leading-relaxed space-y-8 px-8 md:px-32 lg:px-64 mx-auto whitespace-pre-line">
-      {{ post.data.content }}
+    <!-- 內文（對話式） -->
+    <div
+      v-if="post && post.data && post.data.dialog"
+      class="flex flex-col gap-6 px-8 md:px-32 lg:px-64 mx-auto"
+    >
+      <div
+        v-for="(item, idx) in post.data.dialog"
+        :key="idx"
+        :class="[
+          'flex w-full',
+          item.role === 'left' ? 'justify-start' : 'justify-end'
+        ]"
+      >
+        <div
+          :class="[
+            'max-w-[70%] px-6 py-4 border border-black text-base whitespace-pre-line',
+            item.role === 'left' ? 'bg-white text-black' : 'bg-black text-white',
+            'rounded-none'
+          ]"
+          v-html="getMessage(item)"
+        ></div>
+      </div>
     </div>
-  </div>
-  <div v-else class="w-full py-8 text-center">
-    <h2 class="text-2xl font-bold mb-4">找不到文章</h2>
-    <p>您要找的文章不存在或已被刪除。</p>
+    <div v-else class="w-full py-8 text-center">
+      <h2 class="text-2xl font-bold mb-4">找不到文章</h2>
+      <p>您要找的文章不存在或已被刪除。</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { asText } from '@prismicio/helpers'
+import { asText, asHTML } from '@prismicio/helpers'
 import { computed } from 'vue'
 
 const route = useRoute()
@@ -48,5 +67,12 @@ function formatDate() {
 function getTitle() {
   const title = post.value?.data?.title
   return Array.isArray(title) ? asText(title) : ''
+}
+
+function getMessage(item: any) {
+  if (Array.isArray(item.message)) {
+    return asHTML(item.message)
+  }
+  return item.message
 }
 </script> 

@@ -29,13 +29,6 @@
           "thumbnails": []
         }
       },
-      "content": {
-        "type": "Text",
-        "config": {
-          "label": "content",
-          "placeholder": ""
-        }
-      },
       "created_at": {
         "type": "Date",
         "config": {
@@ -55,6 +48,32 @@
               "fields": ["name"]
             }
           ]
+        }
+      },
+      "dialog": {
+        "type": "Group",
+        "config": {
+          "label": "dialog",
+          "repeat": true,
+          "fields": {
+            "message": {
+              "type": "StructuredText",
+              "config": {
+                "label": "message",
+                "placeholder": "",
+                "allowTargetBlank": true,
+                "multi": "paragraph,preformatted,heading1,heading2,heading3,heading4,heading5,heading6,strong,em,hyperlink,image,embed,list-item,o-list-item,rtl"
+              }
+            },
+            "role": {
+              "type": "Select",
+              "config": {
+                "label": "role",
+                "placeholder": "",
+                "options": ["left", "right"]
+              }
+            }
+          }
         }
       }
     }

@@ -8,10 +8,10 @@
           :key="cat"
           @click="selectedCategory = cat"
           :class="[
-            'px-5 py-2 rounded-full border font-semibold text-sm shadow-sm focus:outline-none transition',
+            'px-5 py-2 font-semibold text-sm border border-black transition duration-150',
             selectedCategory === cat
-              ? 'bg-blue-200 border-blue-400 text-blue-900'
-              : 'bg-white border-gray-400 text-gray-700 hover:bg-gray-100'
+              ? 'bg-black text-white font-bold'
+              : 'bg-white text-black hover:bg-black hover:text-white',
           ]"
         >
           {{ cat }}
@@ -21,17 +21,28 @@
         <div
           v-for="post in filteredPosts"
           :key="post.uid"
-          class="rounded-2xl border border-gray-300 bg-white shadow-sm overflow-hidden flex flex-col h-full"
-          style="box-shadow:0 2px 8px 0 rgba(0,0,0,0.03);"
+          class="border border-black bg-white overflow-hidden flex flex-col h-full group"
         >
           <NuxtLink :to="`/posts/${post.uid}`" class="block">
             <div class="w-full aspect-[4/3] bg-gray-200 overflow-hidden">
-              <img :src="post.cover_image" :alt="post.title" class="w-full h-full object-cover" />
+              <img
+                :src="post.cover_image"
+                :alt="post.title"
+                class="w-full h-full object-cover transition duration-300"
+                style="border-radius:0; filter: grayscale(100%);"
+                @mouseover="(e: MouseEvent) => { (e.target as HTMLImageElement).style.filter = 'none'; }"
+                @mouseleave="(e: MouseEvent) => { (e.target as HTMLImageElement).style.filter = 'grayscale(100%)'; }"
+              />
             </div>
             <div class="p-6 flex flex-col h-full">
               <h3 class="text-lg md:text-xl font-extrabold uppercase tracking-tight text-gray-900 mb-2">{{ post.title }}</h3>
               <p class="text-gray-700 text-sm mb-4 flex-1">{{ post.content.slice(0, 80) }}{{ post.content.length > 80 ? '...' : '' }}</p>
-              <button class="px-5 py-2 rounded-full border border-gray-400 bg-white text-gray-900 font-semibold text-sm shadow-sm hover:bg-gray-100 transition w-max">Lees Meer</button>
+              <button
+                class="px-5 py-2 border border-black bg-white text-black font-semibold text-sm transition w-max"
+                style="border-radius:0;"
+                @mouseover="(e: MouseEvent) => { (e.target as HTMLButtonElement).style.backgroundColor = '#000'; (e.target as HTMLButtonElement).style.color = '#fff'; }"
+                @mouseleave="(e: MouseEvent) => { (e.target as HTMLButtonElement).style.backgroundColor = '#fff'; (e.target as HTMLButtonElement).style.color = '#000'; }"
+              >Lees Meer</button>
             </div>
           </NuxtLink>
         </div>
@@ -45,28 +56,50 @@ import { ref, computed } from 'vue'
 import { usePrismic } from '@prismicio/vue'
 import { asText } from '@prismicio/helpers'
 
-const categories = ['全部', '科技', '生活', '設計']
 const selectedCategory = ref('全部')
 
 const { client } = usePrismic()
-const { data: prismicPosts } = await useAsyncData('posts', () => client.getAllByType('post', { lang: '*' }))
+// 取得所有分類
+const { data: categoriesData } = await useAsyncData('categories', () => client.getAllByType('field'))
+// 取得所有文章，帶出 category 關聯
+const { data: prismicPosts } = await useAsyncData('posts', () => client.getAllByType('post', { fetchLinks: ['field.name'], lang: '*' }))
 
 // 轉換 Prismic 資料格式
 const posts = computed(() => {
   if (!prismicPosts.value) return []
-  return prismicPosts.value.map(doc => ({
-    uid: doc.uid,
-    title: asText(doc.data.title) || '',
-    cover_image: doc.data.cover_image?.url || '',
-    content: doc.data.content || '',
-    created_at: doc.data.created_at || doc.first_publication_date,
-  }))
+  return prismicPosts.value.map(doc => {
+    // 取得分類名稱（Prismic 關聯型欄位）
+    let categoryName = ''
+    const cat = doc.data.category
+    if (cat && typeof cat === 'object' && 'data' in cat && cat.data && typeof cat.data.name === 'string') {
+      categoryName = cat.data.name
+    }
+    // 拼接 dialog 內容
+    let contentText = ''
+    if (Array.isArray(doc.data.dialog)) {
+      contentText = doc.data.dialog.map(d => asText(d.message || [])).join('\n')
+    }
+    return {
+      uid: doc.uid,
+      title: asText(doc.data.title) || '',
+      cover_image: doc.data.cover_image?.url || '',
+      content: contentText,
+      category: categoryName,
+      created_at: doc.data.created_at || doc.first_publication_date,
+    }
+  })
+})
+
+// 自動產生分類清單
+const categories = computed(() => {
+  if (!categoriesData.value) return ['全部']
+  const catNames = categoriesData.value.map(cat => cat.data.name).filter(Boolean)
+  return ['全部', ...Array.from(new Set(catNames))]
 })
 
 const filteredPosts = computed(() => {
   if (selectedCategory.value === '全部') return posts.value
-  // 這裡如需分類，需根據內容自訂分類規則
-  return posts.value.filter(post => post.title.includes(selectedCategory.value) || post.content.includes(selectedCategory.value))
+  return posts.value.filter(post => post.category === selectedCategory.value)
 })
 
 function formatDate(dateStr: string) {

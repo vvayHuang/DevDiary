@@ -97,6 +97,133 @@ interface FieldDocumentData {
 export type FieldDocument<Lang extends string = string> =
   prismic.PrismicDocumentWithUID<Simplify<FieldDocumentData>, "field", Lang>;
 
+type HomeDocumentDataSlicesSlice = never;
+
+/**
+ * Content for home documents
+ */
+interface HomeDocumentData {
+  /**
+   * Slice Zone field in *home*
+   *
+   * - **Field Type**: Slice Zone
+   * - **Placeholder**: *None*
+   * - **API ID Path**: home.slices[]
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/slices
+   */
+  slices: prismic.SliceZone<HomeDocumentDataSlicesSlice> /**
+   * Meta Title field in *home*
+   *
+   * - **Field Type**: Text
+   * - **Placeholder**: A title of the page used for social media and search engines
+   * - **API ID Path**: home.meta_title
+   * - **Tab**: SEO & Metadata
+   * - **Documentation**: https://prismic.io/docs/fields/text
+   */;
+  meta_title: prismic.KeyTextField;
+
+  /**
+   * Meta Description field in *home*
+   *
+   * - **Field Type**: Text
+   * - **Placeholder**: A brief summary of the page
+   * - **API ID Path**: home.meta_description
+   * - **Tab**: SEO & Metadata
+   * - **Documentation**: https://prismic.io/docs/fields/text
+   */
+  meta_description: prismic.KeyTextField;
+
+  /**
+   * Meta Image field in *home*
+   *
+   * - **Field Type**: Image
+   * - **Placeholder**: *None*
+   * - **API ID Path**: home.meta_image
+   * - **Tab**: SEO & Metadata
+   * - **Documentation**: https://prismic.io/docs/fields/image
+   */
+  meta_image: prismic.ImageField<never>;
+}
+
+/**
+ * home document from Prismic
+ *
+ * - **API ID**: `home`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type HomeDocument<Lang extends string = string> =
+  prismic.PrismicDocumentWithUID<Simplify<HomeDocumentData>, "home", Lang>;
+
+type PageDocumentDataSlicesSlice = never;
+
+/**
+ * Content for Page documents
+ */
+interface PageDocumentData {
+  /**
+   * Title field in *Page*
+   *
+   * - **Field Type**: Rich Text
+   * - **Placeholder**: *None*
+   * - **API ID Path**: page.title
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/rich-text
+   */
+  title: prismic.RichTextField;
+
+  /**
+   * Slice Zone field in *Page*
+   *
+   * - **Field Type**: Slice Zone
+   * - **Placeholder**: *None*
+   * - **API ID Path**: page.slices[]
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/slices
+   */
+  slices: prismic.SliceZone<PageDocumentDataSlicesSlice>;
+}
+
+/**
+ * Page document from Prismic
+ *
+ * - **API ID**: `page`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type PageDocument<Lang extends string = string> =
+  prismic.PrismicDocumentWithUID<Simplify<PageDocumentData>, "page", Lang>;
+
+/**
+ * Item in *post → dialog*
+ */
+export interface PostDocumentDataDialogItem {
+  /**
+   * message field in *post → dialog*
+   *
+   * - **Field Type**: Rich Text
+   * - **Placeholder**: *None*
+   * - **API ID Path**: post.dialog[].message
+   * - **Documentation**: https://prismic.io/docs/fields/rich-text
+   */
+  message: prismic.RichTextField;
+
+  /**
+   * role field in *post → dialog*
+   *
+   * - **Field Type**: Select
+   * - **Placeholder**: *None*
+   * - **API ID Path**: post.dialog[].role
+   * - **Documentation**: https://prismic.io/docs/fields/select
+   */
+  role: prismic.SelectField<"left" | "right">;
+}
+
 /**
  * Content for post documents
  */
@@ -124,17 +251,6 @@ interface PostDocumentData {
   cover_image: prismic.ImageField<never>;
 
   /**
-   * content field in *post*
-   *
-   * - **Field Type**: Text
-   * - **Placeholder**: *None*
-   * - **API ID Path**: post.content
-   * - **Tab**: Main
-   * - **Documentation**: https://prismic.io/docs/fields/text
-   */
-  content: prismic.KeyTextField;
-
-  /**
    * created_at field in *post*
    *
    * - **Field Type**: Date
@@ -157,6 +273,17 @@ interface PostDocumentData {
   category: ContentRelationshipFieldWithData<
     [{ id: "field"; fields: ["name"] }]
   >;
+
+  /**
+   * dialog field in *post*
+   *
+   * - **Field Type**: Group
+   * - **Placeholder**: *None*
+   * - **API ID Path**: post.dialog[]
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+   */
+  dialog: prismic.GroupField<Simplify<PostDocumentDataDialogItem>>;
 }
 
 /**
@@ -171,7 +298,11 @@ interface PostDocumentData {
 export type PostDocument<Lang extends string = string> =
   prismic.PrismicDocumentWithUID<Simplify<PostDocumentData>, "post", Lang>;
 
-export type AllDocumentTypes = FieldDocument | PostDocument;
+export type AllDocumentTypes =
+  | FieldDocument
+  | HomeDocument
+  | PageDocument
+  | PostDocument;
 
 declare module "@prismicio/client" {
   interface CreateClient {
@@ -196,8 +327,15 @@ declare module "@prismicio/client" {
     export type {
       FieldDocument,
       FieldDocumentData,
+      HomeDocument,
+      HomeDocumentData,
+      HomeDocumentDataSlicesSlice,
+      PageDocument,
+      PageDocumentData,
+      PageDocumentDataSlicesSlice,
       PostDocument,
       PostDocumentData,
+      PostDocumentDataDialogItem,
       AllDocumentTypes,
     };
   }
